@@ -98,18 +98,26 @@ use_built_in_func(sorted, product_list)
 use_built_in_func(sum, [1,2,3])
 
 
-def simple_decorator(func: Callable, message: str):
+def simple_decorator(func: Callable):
     # func, message
     def wrapper():
-        print(f'Печать до вызова. {message}')
-        func()
-        print(f'Печать после вызова. {message}')
+        print(f'Печать до вызова.')
+        result = func()
+        print(f'Печать после вызова.')
+
+        return result
     
     return wrapper
         
 
+@simple_decorator
 def foo():
-    print("Вызов foo")
+    return f'Результат foo'
 
-foo_decorated = simple_decorator(foo, "Привет")
-foo_decorated()
+@simple_decorator
+def foo66():
+    return f'Функция 66'
+
+print(foo())
+print(foo())
+print(foo())
