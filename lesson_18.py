@@ -20,32 +20,21 @@ Python: Функции Ч5. Области видимости. Замыкани�
 
 # print(banana) # NameError: name 'banana' is not defined
 
-a = 2 # Global
 
 # nonlocal
-def foo():
-    a = 3 # Local foo
-    print(f'foo до вызова foo2 {a=}')
-
+def foo(a: str):
+    # a - local для foo
     def foo2():
-        # Позволит перписать a из foo
-        nonlocal a
-        a = 4
-        print(f'foo2 {a=}')
+        return a
+    return foo2
 
-    foo2()
-    print(f'foo после вызова foo2 {a=}')
+f2 = foo("апельсин")
+f3 = foo("банан")
 
-foo()
+orange = f2() # Замыкание.
+banan = f3()
 
+print(orange)
+print(banan)
 
-bananas = print
-
-bananas("Привет!")
-bananas("Как дела?")
-
-one = "1"
-bir = one
-odin = bir
-
-print(odin)
+# f2 -> foo2 -> "апельсин" (local a)
