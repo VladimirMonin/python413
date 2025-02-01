@@ -57,3 +57,30 @@ print(counter_0_2())
 print(counter_0_2())
 print(counter_0_2())
 print(counter_0_2())
+
+
+product_list = ["морковь", "картошка", "чеснок", "говядина", "коньяк"]
+
+# Функция с кешированием результатов вызова на примере сортировщика
+
+def product_sort(products: list):
+    # тут будет хранится products
+    cach = []
+
+    def sorter():
+        nonlocal cach
+        if cach and len(cach) == len(products):
+            return cach
+        
+        cach = sorted(products)
+        return cach
+
+    return sorter
+
+product_sorter = product_sort(product_list)
+print(product_sorter())
+print(product_sorter())
+
+product_list.append("капуста")
+print(product_sorter())
+print(product_sorter())
