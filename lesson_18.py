@@ -38,3 +38,22 @@ print(orange)
 print(banan)
 
 # f2 -> foo2 -> "апельсин" (local a)
+
+# Счечтик который помнит своё состояние. И может принять стартовую позицию.
+
+def counter(start: int = 0, step: int = 1):
+
+    position = start
+
+    def tik():
+        nonlocal position
+        position += step
+        return position
+    
+    return tik
+
+counter_0_2 = counter(0, 2)
+print(counter_0_2())
+print(counter_0_2())
+print(counter_0_2())
+print(counter_0_2())
