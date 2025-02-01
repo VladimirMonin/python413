@@ -22,20 +22,30 @@ Python: Функции Ч5. Области видимости. Замыкани�
 
 a = 2 # Global
 
+# nonlocal
 def foo():
-    a = 3 # Local
-    print(f'foo: {a=}')
+    a = 3 # Local foo
+    print(f'foo до вызова foo2 {a=}')
 
-def foo2():
-    global a
-    a = 4 # Local
-    print(f'foo2: {a=}')
+    def foo2():
+        # Позволит перписать a из foo
+        nonlocal a
+        a = 4
+        print(f'foo2 {a=}')
 
-def foo3():
-    print(f'foo3: {a=}')
+    foo2()
+    print(f'foo после вызова foo2 {a=}')
 
-print(a) # 2 global
-foo() # 3 local
-foo2()# 4 global
-foo3() # 4 global
-print(a) # 4 global
+foo()
+
+
+bananas = print
+
+bananas("Привет!")
+bananas("Как дела?")
+
+one = "1"
+bir = one
+odin = bir
+
+print(odin)
