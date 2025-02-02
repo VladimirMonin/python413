@@ -34,6 +34,36 @@ Callable[[int, str], str] - функция, принимающая целое ч
 Iterable[str] - итерируемый объект, содержащий строки
 Optional[int] - целое число или None
 Union[int, float] - целое или число с плавающей точкой
+
+
+ВАРИАНТЫ АННОТАЦИЙ ДЛЯ ДЕКОРАТОРОВ С ARGS/KWARGS:
+
+1. Базовый вариант (любые аргументы, любой возврат):
+def decorator(func: Callable[..., Any]) -> Callable[..., Any]
+
+2. Строгая типизация конкретных аргументов:
+def decorator(func: Callable[[int, str], bool]) -> Callable[[int, str], bool]
+
+3. Смешанный вариант (известны типы позиционных аргументов):
+def decorator(func: Callable[[int, str, ...], str]) -> Callable[[int, str, ...], str]
+
+4. С указанием типов для kwargs:
+def decorator(func: Callable[..., Dict[str, Any]]) -> Callable[..., Dict[str, Any]]
+
+5. Комбинированный вариант:
+def decorator(func: Callable[[int, str], Union[str, None]]) -> Callable[[int, str], Union[str, None]]
+
+6. Для методов класса:
+def decorator(func: Callable[[Any, ...], Any]) -> Callable[[Any, ...], Any]
+
+7. Для асинхронных функций:
+def decorator(func: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]
+
+8. С параметрами декоратора:
+def param_decorator(param: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]
+
+ВАЖНО: ... в Callable означает "любое количество аргументов любого типа"
+
 """
 
 
@@ -70,18 +100,18 @@ def get_sum(num_list: List[int]) -> int:
     return sum(num_list)
 
 print(multiply(5, 6))
-print(multiply(5, "6"))
+# print(multiply(5, "6"))
 
 data_set = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 print(get_sum(data_set))
 
 ################# Декораторы #################
 
-def simple_decorator2(func: Callable):
+def simple_decorator2(func: Callable[..., Any]) -> Callable[..., Any]:
     # func, message
-    def wrapper(a: int, b: int):
+    def wrapper(*args, **kwargs):
         print(f'Печать до вызова.')
-        result = func(a, b)
+        result = func(*args, **kwargs)
         print(f'Печать после вызова.')
 
         return result
@@ -96,5 +126,5 @@ def multiply2(a: int, b: int) -> int:
 def multiply3(a: int, b: int, c: int) -> int:
     return a * b * c
 
-multiply2(5, 6)
-multiply3(5, 6, 7)
+print(multiply2(5, 6))
+print(multiply3(5, 6, 7))
