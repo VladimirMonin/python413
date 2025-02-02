@@ -128,3 +128,28 @@ def multiply3(a: int, b: int, c: int) -> int:
 
 print(multiply2(5, 6))
 print(multiply3(5, 6, 7))
+
+# Напишем полезный декоратор. Который супер точно засекает время работы
+# Любой функции и выводит время работы. Используем специальную функцию
+# Из библиотеки time - perf_counter()
+
+from time import perf_counter
+from data.marvel import full_dict
+
+def timer_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    
+    def wrapper(*args, **kwargs):
+        start = perf_counter()
+        result = func(*args, **kwargs)
+        end = perf_counter()
+        print(f'Время работы функции {func.__name__}: {end - start:.10f} секунд')
+        return result
+    return wrapper
+
+@timer_decorator
+def get_film_by_year(year: int) -> List[Dict[str, Any]]:
+    return [film for film in full_dict.values() if film['year'] == year]
+    
+print(get_film_by_year(2008))
+print(get_film_by_year(2019))
+
