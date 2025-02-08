@@ -103,3 +103,27 @@ full_list.sort(key=film_sorter)
 pprint(full_list)
 
 full_list.sort(key=lambda film: (film['year'] if isinstance(film['year'], int) else 0, film['title'] if film['title'] else "Без названия"))
+
+
+# SORTED - функция высшего порядка, возвращает генератор
+# key - необязательный параметр для сортировки
+# reverse - необязательный параметр для сортировки по убыванию
+
+films = sorted(participants, reverse=True, key=len)
+print(films)
+
+film =  {
+        'title': None,
+        'year': 'TBA',
+        'director': 'TBA',
+        'screenwriter': 'Яссер Лестер',
+        'producer': 'Кевин Файги и Джонатан Шварц',
+}
+
+print(dict(sorted(film.items())))
+# в item будут заходить кортежи типа ("title", None)
+print(dict(sorted(film.items(), key=lambda item: item[1] if item[1] else "")))
+
+# Фильтрация по году а потом сортировка по названию
+sorted_2023 = list(sorted(filter(lambda film: film["year"] == 2023, full_list), key=lambda film: film["title"]))
+print(sorted_2023)
