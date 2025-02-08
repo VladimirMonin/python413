@@ -23,5 +23,26 @@ cleaned_potatos = my_map(clean_potato, potatos)
 print(cleaned_potatos)
 
 # используем встроеный map
-cleaned_potatos_2 = map(clean_potato, potatos) # list( <map object at 0x00000276552F9B10> )
+cleaned_potatos_2 = list(map(clean_potato, potatos)) # list( <map object at 0x00000276552F9B10> )
 print(cleaned_potatos_2)
+
+# ФИЛЬТР
+
+def my_filtr(func: Callable, data: Iterable) -> List:
+    result = []
+
+    for item in data:
+        if func(item):
+            result.append(item)
+    
+    return result
+
+def is_bad_wegetable(wegetable: str) -> bool:
+    return "гнил" in wegetable.lower()
+
+bad_potatos = my_filtr(is_bad_wegetable, potatos)
+print(bad_potatos)
+
+# используем встроеный filter
+bad_potatos_2 = list(filter(is_bad_wegetable, potatos)) # <filter object at 0x000001B43843B550>
+print(bad_potatos_2)
