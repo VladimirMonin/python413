@@ -46,3 +46,17 @@ print(bad_potatos)
 # используем встроеный filter
 bad_potatos_2 = list(filter(is_bad_wegetable, potatos)) # <filter object at 0x000001B43843B550>
 print(bad_potatos_2)
+
+# LAMBDA
+
+def multiple(a, b):
+    return a * b
+
+anonimus = lambda a, b: a * b
+print(multiple(2, 2))
+print(anonimus(2, 2))
+
+potatos = ["картошка", "картошка", "гнилая_картошка", "картошка", "гнилая_ картошка", "картошка"]
+
+good_potatos = list(filter(lambda potato: "гнил" not in potato.lower(), potatos))
+print(good_potatos)
