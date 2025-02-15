@@ -6,22 +6,64 @@ Python: ООП. Ч1. Атрибуты и методы. Класс и экзем�
 - атрибут класса
 - __init__ - инициализатор
 - self - ссылка на экземпляр класса
+- __new__ - как скрытая часть конструктора
+- методы работающие с self - методы экземпляра
+- документация класса и методов
 """
 
-class Person:
-    def __init__(self, name: str):
-        self.name = name
+# Класс объявление
+class AdPost:
+    promote_rate: float = 0.1 # 0.005
+    
+    def __init__(self, title: str, text: str, price: int):
+        self.title = title
+        self.text = text
+        self.price = price
+        # self.promote_rate: float = 0.5
 
-    def say_my_name(self):
-        print(f"Меня зовут {self.name}")
 
-# Person.__init__() missing 1 required positional argument: 'name'
-p1 = Person("Барак")
-p2 = Person("Владимир")
-p3 = Person("Дональд")
+    def __str__(self) -> str:
+        return f"Класс {self.__class__.__name__}: Заголовок: {self.title}, Текст: {self.text[:20]}, Цена: {self.price}"
+    
+    def calculate_promote_cost(self, day:int) -> int:
+        promote_cost = int(self.price * (self.promote_rate / 100) * day)
+        return promote_cost
+    
+    @staticmethod
+    def get_peak_hours() -> tuple:
+        """
+        Метод возвращающий часы пик для размещения рекламы.
+        :return: Кортеж с часами пик.
+        """
+        return 13,14,15
+    
+    @classmethod
+    def get_promote_rate(cls) -> float:
+        """
+        Метод возвращающий текущий процент рекламы.
+        :return: Процент рекламы.
+        """
+        return cls.promote_rate
+    
+    @classmethod
+    def set_promote_rate(cls, rate: float) -> None:
+        """
+        Метод устанавливающий новый процент рекламы.
+        :param rate: Процент рекламы.
+        """
+        cls.promote_rate = rate
+    
+ap1 = AdPost("Sony Playstation 5. Муха не сидела!", "Новая, красивая, блестящая...!", 20000)
+ap2 = AdPost("Видеокарта RTX 3090", "В компьютере стоявшая, майнинга не видавшая, отвертки не ведавшая. Как новая!", 60000)
 
-print(p1.name, p2.name, p3.name)
-p1.say_my_name()
-p2.say_my_name()
-p3.say_my_name()
+AdPost.promote_rate = 1
 
+print(ap1)
+print(ap2)
+print(ap1.calculate_promote_cost(3))
+print(ap2.calculate_promote_cost(3))
+
+print(AdPost.get_peak_hours())
+print(AdPost.get_promote_rate())
+AdPost.set_promote_rate(5)
+print(AdPost.get_promote_rate())
