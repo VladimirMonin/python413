@@ -9,16 +9,19 @@ Python: ООП. Ч1. Атрибуты и методы. Класс и экзем�
 """
 
 class Person:
-    # Атрибут класса
-    name = "Джон"
+    def __init__(self, name: str):
+        self.name = name
 
+    def say_my_name(self):
+        print(f"Меня зовут {self.name}")
 
-p1 = Person()
-p2 = Person()
+# Person.__init__() missing 1 required positional argument: 'name'
+p1 = Person("Барак")
+p2 = Person("Владимир")
+p3 = Person("Дональд")
 
-print(p1.name, p2.name)
+print(p1.name, p2.name, p3.name)
+p1.say_my_name()
+p2.say_my_name()
+p3.say_my_name()
 
-p1.name = "Филлип"
-p2.name = "Джордж"
-
-print(p1.name, p2.name)
