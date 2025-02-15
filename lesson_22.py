@@ -11,8 +11,7 @@ class Person:
 p1 = Person()
 p2 = Person()
 
-print(p1, p2)
-print(type(p1), type(p2))
-# <__main__.Person object at 0x000001E973C16F90> 
-# <__main__.Person object at 0x000001E973EA8CD0>
-# <class '__main__.Person'> <class '__main__.Person'>
+p1.name = "Филлип"
+p2.name = "Джордж"
+
+print(p1.name, p2.name)
