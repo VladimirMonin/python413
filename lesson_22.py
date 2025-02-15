@@ -78,13 +78,11 @@ class Weather:
 
 # ТЕСТ
 if __name__ == "__main__":
-    weather = Weather(
-        appid="23496c2a58b99648af590ee8a29c5348", units="metric", lang="ru"
-    )
-    # Это без __call__
-    moscow = weather.get_weather("Москва")
-    # __call__ сделал мой объект вызываемым
-    sanct_petersburg = weather("Санкт-Петербург")
+    settings = {
+        "appid": "23496c2a58b99648af590ee8a29c5348",
+        "units": "metric",
+        "lang": "ru",
+    }
 
-    print(moscow)
-    print(sanct_petersburg)
+    weather = Weather(**settings)
+    print(weather("Усть-Каменогорск"))
