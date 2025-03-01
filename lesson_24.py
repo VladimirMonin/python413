@@ -9,7 +9,7 @@ class Car:
     def __init__(self, model: str, color: str):
         self.model = model
         self.color = color
-        self._speed = 0 # protected
+        self.__speed = 0 # private
         self.__max_speed = 200 # private
 
     def __str__(self):
@@ -26,29 +26,37 @@ class Car:
         if speed > self.__max_speed:
             raise ValueError("Скорость не может быть больше максимальной")
     
+    @property
+    def speed(self) -> int:
+        """
+        Публичный метод для получения скорости.
+        """
+        return self.__speed
     
-    def set_speed(self, speed: int):
+    @speed.setter
+    def speed(self, speed: int):
         """
         Публичный метод для установки скорости.
         Вызывает приватный метод-валидатор.
         """
         self.__validate_speed(speed)
-        self._speed = speed
+        self.__speed = speed
 
 
-class Driver:
-    def __init__(self, name: str, car: Car):
-        self.name = name
-        self.car = car
-
-    def drive(self, speed: int):
-        print(f"{self.name} сел в {self.car.model}")
-        self.car.set_speed(speed)
-        print(f"Скорость {self.car.model}: {self.car._speed}")
+    @speed.deleter
+    def speed(self):
+        self.__speed = 0
 
 
-volga = Car("Volga", "black")
-driver = Driver("Иосиф", volga)
-driver.drive(100)
-driver.drive(200)
-driver.drive(300)
+audi = Car("Audi", "red")
+print(audi)
+audi.speed = 100
+print(audi.speed)
+audi.speed = 200
+print(audi.speed)
+# audi.speed = 300
+print(audi.speed)
+# audi.speed = -100
+print(audi.speed)
+del audi.speed
+print(audi.speed)
