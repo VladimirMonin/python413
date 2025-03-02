@@ -15,29 +15,13 @@ class AiChat():
         return f"{self.message} {additional_message}"
 
 class ImageAiChat(AiChat):
-    pass
+    # Переопределение
+    def send_message(self, additional_message: str = ""):
+        return f"{self.message} {additional_message} иная реализация в ImageAiChat"
+
 
 class MistralAiChat(AiChat):
     pass
 
-ai_chat = AiChat()
-print(ai_chat)
 image_ai_chat = ImageAiChat()
-print(image_ai_chat)
-mistral_ai_chat = MistralAiChat()
-print(mistral_ai_chat)
-
-print(type(ai_chat))
-print(type(image_ai_chat))
-print(type(mistral_ai_chat))
-
-# А теперь is instance
-# Проверим наследника на принадлежность к родителю
-print(isinstance(ai_chat, AiChat))
-print(isinstance(image_ai_chat, AiChat))
-print(isinstance(mistral_ai_chat, AiChat))
-
-# MRO - Method Resolution Order - Порядок разрешения методов
-# Получим MRO для  ImageAiChat
-print(ImageAiChat.__mro__)
-# (<class '__main__.ImageAiChat'>, <class '__main__.AiChat'>, <class 'object'>)
+print(image_ai_chat.send_message("Привет!"))
