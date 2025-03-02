@@ -1,3 +1,4 @@
 art
 ascii_magic==2.3.0
 tabulate
+mistralai
