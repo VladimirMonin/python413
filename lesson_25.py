@@ -36,3 +36,8 @@ print(type(mistral_ai_chat))
 print(isinstance(ai_chat, AiChat))
 print(isinstance(image_ai_chat, AiChat))
 print(isinstance(mistral_ai_chat, AiChat))
+
+# MRO - Method Resolution Order - Порядок разрешения методов
+# Получим MRO для  ImageAiChat
+print(ImageAiChat.__mro__)
+# (<class '__main__.ImageAiChat'>, <class '__main__.AiChat'>, <class 'object'>)
