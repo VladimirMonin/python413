@@ -15,9 +15,11 @@ class AiChat():
         return f"{self.message} {additional_message}"
 
 class ImageAiChat(AiChat):
-    # Переопределение
+    # Расширение метода.
     def send_message(self, additional_message: str = ""):
-        return f"{self.message} {additional_message} иная реализация в ImageAiChat"
+        # result = AiChat.send_message(self, additional_message)
+        result = super().send_message(additional_message)
+        return f"{result} и ещё какой-то текст"
 
 
 class MistralAiChat(AiChat):
