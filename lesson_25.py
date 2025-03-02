@@ -32,6 +32,13 @@ class MistralAIChat:
         self.system_role = system_role
         self.client = Mistral(api_key=self.api_key)
 
+        self.messages = [
+            {
+                "role": "system",
+                "content": self.system_role,
+            }
+        ]
+
     def __validate_model(self, model: str):
         if model not in self.MODELS:
             raise ValueError(f"Некорректная модель: {model}. Доступные модели: {self.MODELS}")
@@ -46,19 +53,35 @@ class MistralAIChat:
     def model(self, model: str):
         self.__model = self.__validate_model(model)
 
+    def __add_message(self, message: str, role: str):
+        self.messages.append(
+            {
+                "role": role,
+                "content": message,
+            }
+        )
+
     def text_completion(self, prompt: str):
+        self.__add_message(prompt, "user")
+
         response = self.client.chat.complete(
             model= self.model,
-            messages = [
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ]
+            messages=self.messages,
         )
+
+
+        self.__add_message(response.choices[0].message.content, "assistant")
+
         return response.choices[0].message.content
 
 
 # Тестовый запуск
-chat = MistralAIChat(api_key=MISTRAL_API_KEY, model=model, system_role="Ты банан")
-print(chat.text_completion("Напиши басню в стиле Крылова, русского писателя, про мартышку и итератор"))
+chat = MistralAIChat(api_key=MISTRAL_API_KEY, model=model, system_role="Ты эксперт по хокку и поэт. Отвечаешь только в этом стиле")
+
+while True:
+    prompt = input("Введите ваш запрос: ")
+    if prompt.lower() == "exit":
+        break
+    response = chat.text_completion(prompt)
+    print(response)
+    print("-" * 40)
