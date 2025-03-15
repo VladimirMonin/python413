@@ -13,6 +13,7 @@ Lesson 26 - Наследование
 - Работа с инициализаторами
 - MRO - Method Resolution Order
 - Type vs Isinstance
+- Абстрактные классы и методы
 """
 
 # 1. Концепция наследования
@@ -66,3 +67,14 @@ print(cat.voice())  # Cat издало звук
 # Получим это для Dog
 print(Dog.__mro__)  # (<class '__main__.Dog'>, <class '__main__.Animal'>, <class 'object'>)
 
+# Type vs Isinstance
+# Type - проверяет тип объекта
+# Isinstance - проверяет принадлежность объекта к классу
+
+print(type(dog))  # <class '__main__.Dog'>
+print(isinstance(dog, Dog))  # True
+print(isinstance(dog, Animal))  # True
+
+# <class '__main__.Dog'>
+# True
+# True
