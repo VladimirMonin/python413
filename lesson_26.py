@@ -21,8 +21,9 @@ Lesson 26 - Наследование
 from abc import ABC, abstractmethod
 
 class AbstractDocument(ABC):
-    def __init__(self, file_path:str):
+    def __init__(self, file_path:str, encoding:str="utf-8"):
         self.file_path = file_path
+        self.encoding = encoding
 
     @abstractmethod
     def read(self):
@@ -41,7 +42,23 @@ class AbstractDocument(ABC):
     
 
 class TextDocument(AbstractDocument):
-    pass
+    
+    def read(self)-> list[str]:
+        with open(self.file_path, "r", encoding=self.encoding) as file:
+            clear_data = [string.strip() for string in file.readlines()]
+            return clear_data
 
-# instantiate abstract class TextDocument without an implementation for abstract metho
-td = TextDocument("text.txt")
+    def write(self, *data: str) -> None:
+        with open(self.file_path, "w", encoding=self.encoding) as file:
+            write_data = "\n".join(data)
+            file.write(write_data)
+
+    def append(self, *data: str) -> None:
+        with open(self.file_path, "a", encoding=self.encoding) as file:
+            write_data = "\n".join(data)
+            file.write(write_data)
+
+
+document = TextDocument("test.txt")
+document.write("Привет", "Мир")
+print(document.read())
