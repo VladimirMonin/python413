@@ -17,79 +17,63 @@ Lesson 26 - Наследование
 - Модуль ABC - Abstract Base Classes
 - Декоратор @abstractmethod
 - Множественное и иерархическое наследование
+
 """
 
-# Иерархическое наследование - когда один класс наследует от нескольких классов
-# Множественное наследование - когда один класс наследует от нескольких класс
+# Множественное наследование. Тут все ок. Стройная иерархия.
+
+# class A:
+#     def method_a(self):
+#         print("Method A")
+
+
+# class B:
+#     def method_b(self):
+#         print("Method B")
+
+
+# class C(A, B):
+#     def method_c(self):
+#         print("Method C")
+
+# print(C.__mro__)
+# # (<class '__main__.C'>, <class '__main__.A'>, <class '__main__.B'>, <class 'object'>)
+
+
+# Множественное наследование
 
 class A:
-    def __init__(self, a_param:str):
-        self.a_param = a_param
-    
     def method_a(self):
-        print('Method A' + self.a_param)
+        print("Method A")
 
-class B(A):
-    def __init__(self, a_param:str, b_param:str):
-        super().__init__(a_param)
-        self.b_param = b_param
 
+class B(object):
     def method_b(self):
-        print('Method B' + self.b_param)
+        print("Method B")
 
-class C(B):
-    def __init__(self, a_param:str, b_param:str, c_param:str):
-        super().__init__(a_param, b_param)
-        self.c_param = c_param
 
+class C(A):
     def method_c(self):
-        print('Method C')
-
-c = C('A', 'B', 'C')
-c.method_a()
-c.method_b()
-c.method_c()
+        print("Method C")
 
 
-
-# Бабка - Жучка - Внучка - Репка
-
-# Репка - базовый класс
-
-# class Repka:
-#     def __init__(self, weight):
-#         self.weight = weight
-
-#     def __str__(self):
-#         return f'Репка весом {self.weight} кг'
-
-#     def pull(self):
-#         print('Тянут репку')
+class D(B):
+    def method_d(self):
+        print("Method D")
 
 
-# # Бабка - класс наследник от Репка
-# class Babka(Repka):
-#     def __init__(self, weight, name):
-#         super().__init__(weight)
-#         self.name = name
-
-#     def __str__(self):
-#         return f'Бабка {self.name} весом {self.weight} кг'
-
-#     def pull(self):
-#         print('Бабка тянет репку')
-
-# # Жучка - класс наследник от Репка
-# class Zhuchka(Repka):
-#     def __init__(self, weight, name):
-#         super().__init__(weight)
-#         self.name = name
-
-#     def __str__(self):
-#         return f'Жучка {self.name} весом {self.weight} кг'
-
-#     def pull(self):
-#         print('Жучка тянет репку')
+# А вот здесь начинается настоящий хаос, детка!
+class X(C, D):
+    pass
 
 
-# # 
+class Y(D, C):
+    pass
+
+
+# БАБАХ! Вот она, бомба замедленного действия!
+class Z(X, Y):
+    pass
+
+# Эта строчка вызовет ошибку TypeError
+print(Z.__mro__)
