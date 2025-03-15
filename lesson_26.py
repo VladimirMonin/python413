@@ -35,10 +35,22 @@ class Dog(Animal):
         return f'{result} и это было сделано собакой'
 
 class Cat(Animal):
-    pass
+    def __init__(self, name: str, fluffy_level: int):
+        super().__init__(name)
+        self.fluffy_level = self.__fluffy_validator(fluffy_level)
+
+    def voice(self):
+        return f'{super().voice()} и это было сделано кошкой'
+
+    
+    def __fluffy_validator(self, fluffy_level):
+        if not 0 <= fluffy_level <= 10:
+            raise ValueError('Fluffy level must be between 0 and 10')
+        else:
+            return fluffy_level
 
 dog = Dog('Белка')
-cat = Cat('Святомур')
+cat = Cat('Хитролап', 5)
 
 print(dog.voice())  # Dog издало звук. И это было сделано собакой
 print(cat.voice())  # Cat издало звук
