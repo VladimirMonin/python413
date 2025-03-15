@@ -11,6 +11,8 @@ Lesson 26 - Наследование
 - Вызов методов родительского класса
 - Super()
 - Работа с инициализаторами
+- MRO - Method Resolution Order
+- Type vs Isinstance
 """
 
 # 1. Концепция наследования
@@ -22,6 +24,9 @@ class Animal:
 
     def voice(self):
       return f'{self.__class__.__name__} по имени {self.name} издал(а) звук'
+    
+    def __str__(self):
+        return f'{self.__class__.__name__} по имени {self.name}'
 
 class Dog(Animal):
     # Пайтон ищет метод у собственного класса.
@@ -54,3 +59,10 @@ cat = Cat('Хитролап', 5)
 
 print(dog.voice())  # Dog издало звук. И это было сделано собакой
 print(cat.voice())  # Cat издало звук
+
+# MRO - Method Resolution Order - Порядок разрешения методов
+# Порядок разрешения методов - это порядок, в котором Python ищет методы в иерархии наследования.
+
+# Получим это для Dog
+print(Dog.__mro__)  # (<class '__main__.Dog'>, <class '__main__.Animal'>, <class 'object'>)
+
