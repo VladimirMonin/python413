@@ -6,23 +6,25 @@
 
 class Pizza:
     def __init__(self, **kwargs):
-        self.size = kwargs.get('size', 30)
+        self.size = kwargs.pop('size', 30)
+        super().__init__(**kwargs)
 
 class Pie:
     def __init__(self, **kwargs):
-        self.size = kwargs.get('size', 30)
+        self.size = kwargs.pop('size', 30)
+        super().__init__(**kwargs)
 
 
 class CheeseBorderMixin:
-    def __init__(self, height: int):
-        self.height = height
+    def __init__(self, **kwargs):
+        self.height = kwargs.pop('height', 10)
 
     def add_cheese_border(self):
         print(f'Сырный борт, высотой {self.height} мм активирован!')
 
 class ThinkCrustMixin:
-    def __init__(self, thickness: int):
-        self.thickness = thickness
+    def __init__(self, **kwargs):
+        self.thickness = kwargs.pop('thickness', 1)
     
     def add_thin_crust(self):
         print(f'Тонкое тесто, толщиной {self.thickness} мм активировано!')
@@ -32,9 +34,13 @@ class ThinkCrustMixin:
 # Пицца с сырным бортом
 class CheeseBorderPizza(Pizza, CheeseBorderMixin):
     def __init__(self, **kwargs):
-        Pizza.__init__(self, **kwargs)
-        CheeseBorderMixin.__init__(self, height=kwargs.get('height', 10))
-
-    def make_pizza(self):
-        print(f'Пицца с сырным бортом, размером {self.size} см готова!')
+        super().__init__(**kwargs)
         self.add_cheese_border()
+
+
+# Тест
+print('Пицца с сырным бортом')
+pizza = CheeseBorderPizza(size=40, height=20)
+print(pizza.size)
+print(pizza.height)
+print(pizza.__dict__)
