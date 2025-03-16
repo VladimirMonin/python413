@@ -283,6 +283,171 @@ class MistralAiImageChat(MistralAI):
 
         self.images_count = 0
 
+class MistralAIModeration(MistralAI):
+    """
+    Класс для работы с сервисом модерации Mistral AI.
+    Позволяет проверять текст и диалоги на наличие неприемлемого содержимого.
+    
+    Использует модель модерации Mistral для выявления потенциально опасного контента
+    по девяти различным категориям, включая сексуальный контент, дискриминацию,
+    угрозы насилия, опасный контент и т.д.
+    """
+    
+    def __init__(self, api_key: str, model: str = "mistral-moderation-latest"):
+        """
+        Инициализирует объект модерации Mistral.
+        
+        :param api_key: Ключ API Mistral.
+        :param model: Модель модерации (по умолчанию "mistral-moderation-latest").
+        """
+        super().__init__(api_key, model, "moderate")
+        
+        # Категории модерации с описанием на русском языке
+        self.categories_description = {
+            'sexual': 'Сексуальный контент',
+            'hate_and_discrimination': 'Ненависть и дискриминация',
+            'violence_and_threats': 'Насилие и угрозы',
+            'dangerous_and_criminal_content': 'Опасный и криминальный контент',
+            'selfharm': 'Самоповреждение',
+            'health': 'Медицинские советы',
+            'financial': 'Финансовые советы',
+            'law': 'Юридические советы',
+            'pii': 'Персональные данные'
+        }
+    
+    def moderate_text(self, text: str) -> dict:
+        """
+        Проверяет текст на наличие неприемлемого содержимого.
+        
+        :param text: Текст для проверки.
+        :return: Словарь с результатами модерации и оценками по категориям.
+        """
+        try:
+            response = self.client.classifiers.moderate(
+                model=self.model,
+                inputs=[text]
+            )
+            
+            # Получаем результат для первого (и единственного) входного текста
+            result = response.results[0]
+            
+            # Формируем словарь с результатами модерации
+            moderation_result = {
+                'id': response.id,
+                'categories': result.categories,
+                'category_scores': result.category_scores,
+                'has_flagged_content': any(result.categories.values()),
+                'flagged_categories': [
+                    self.categories_description[category] 
+                    for category, is_flagged in result.categories.items() 
+                    if is_flagged
+                ]
+            }
+            
+            return moderation_result
+            
+        except Exception as e:
+            return {
+                'error': str(e),
+                'categories': {},
+                'category_scores': {},
+                'has_flagged_content': False,
+                'flagged_categories': []
+            }
+    
+    def moderate_chat(self, messages: list) -> dict:
+        """
+        Проверяет диалог на наличие неприемлемого содержимого.
+        Анализирует последнее сообщение с учетом контекста разговора.
+        
+        :param messages: Список сообщений в формате [{"role": "user", "content": "текст"}, ...].
+        :return: Словарь с результатами модерации и оценками по категориям.
+        """
+        try:
+            response = self.client.classifiers.moderate_chat(
+                model=self.model,
+                inputs=messages
+            )
+            
+            # Получаем результат для первого (и единственного) входного диалога
+            result = response.results[0]
+            
+            # Формируем словарь с результатами модерации
+            moderation_result = {
+                'id': response.id,
+                'categories': result.categories,
+                'category_scores': result.category_scores,
+                'has_flagged_content': any(result.categories.values()),
+                'flagged_categories': [
+                    self.categories_description[category] 
+                    for category, is_flagged in result.categories.items() 
+                    if is_flagged
+                ]
+            }
+            
+            return moderation_result
+            
+        except Exception as e:
+            return {
+                'error': str(e),
+                'categories': {},
+                'category_scores': {},
+                'has_flagged_content': False,
+                'flagged_categories': []
+            }
+    
+    def request(self, prompt: str, image_path: str | None = None) -> dict:
+        """
+        Реализация абстрактного метода родительского класса.
+        В данном случае просто перенаправляет на модерацию текста.
+        
+        :param prompt: Текст для проверки.
+        :param image_path: Не используется в модерации (добавлен для совместимости).
+        :return: Словарь с результатами модерации.
+        """
+        return self.moderate_text(prompt)
+    
+    def is_safe_text(self, text: str, threshold: float = 0.8) -> bool:
+        """
+        Быстрая проверка текста на безопасность.
+        
+        :param text: Текст для проверки.
+        :param threshold: Пороговое значение для определения безопасности (по умолчанию 0.8).
+        :return: True, если текст безопасен, False - если есть подозрительное содержимое.
+        """
+        result = self.moderate_text(text)
+        
+        # Проверяем, есть ли категории с оценкой выше порогового значения
+        for category, score in result['category_scores'].items():
+            if score > threshold:
+                return False
+        
+        return True
+    
+    def get_highest_risk_category(self, text: str) -> tuple:
+        """
+        Определяет категорию с наивысшим риском в тексте.
+        
+        :param text: Текст для проверки.
+        :return: Кортеж (категория, описание_категории, оценка) для наиболее рискованной категории.
+        """
+        result = self.moderate_text(text)
+        
+        if not result['category_scores']:
+            return ("none", "Нет рисков", 0.0)
+        
+        # Находим категорию с наивысшей оценкой
+        highest_category = max(result['category_scores'].items(), key=lambda x: x[1])
+        category_name = highest_category[0]
+        category_score = highest_category[1]
+        
+        return (
+            category_name, 
+            self.categories_description.get(category_name, "Неизвестная категория"), 
+            category_score
+        )
+
+
 
 # # Тестовый запуск
 # chat = MistralAIChat(MISTRAL_API_KEY, "mistral-large-latest", "Ты шутник юморист. Отвечаешь как робот Бендер из Футурамы")
@@ -300,22 +465,50 @@ class MistralAiImageChat(MistralAI):
 
 # Запуск с изображениями
 
-image_chat = MistralAiImageChat(MISTRAL_API_KEY, "pixtral-large-latest", "Ты анализируешь изображения, отвечаешь на вопросы пользователя. Детально и на русском языке")
+# image_chat = MistralAiImageChat(MISTRAL_API_KEY, "pixtral-large-latest", "Ты анализируешь изображения, отвечаешь на вопросы пользователя. Детально и на русском языке")
 
-while True:
-    prompt = input("Введите текст: ")
-    if prompt == "exit":
-        break
+# while True:
+#     prompt = input("Введите текст: ")
+#     if prompt == "exit":
+#         break
 
-    if prompt == "clear":
-        image_chat.clear_history()
-        print('Изображений в истории после очистки:', image_chat.get_images_count())
-        print("-" * 50)
-        continue
+#     if prompt == "clear":
+#         image_chat.clear_history()
+#         print('Изображений в истории после очистки:', image_chat.get_images_count())
+#         print("-" * 50)
+#         continue
 
-    image_path = input("Введите путь к изображению (или Enter, если изображение не нужно): ")
-    response = image_chat.request(prompt, image_path)
-    print('Ответ:', response['response'])
-    print('Токенов использовано:', response['total_tokens'])
-    print('Изображений в истории:', image_chat.get_images_count())
-    print("-" * 50)
+#     image_path = input("Введите путь к изображению (или Enter, если изображение не нужно): ")
+#     response = image_chat.request(prompt, image_path)
+#     print('Ответ:', response['response'])
+#     print('Токенов использовано:', response['total_tokens'])
+#     print('Изображений в истории:', image_chat.get_images_count())
+#     print("-" * 50)
+
+
+# Пример использования класса для модерации текста
+moderator = MistralAIModeration(MISTRAL_API_KEY)
+
+# Проверка простого текста
+text = "Привет, как дела?"
+result = moderator.moderate_text(text)
+print(f"Текст безопасен: {not result['has_flagged_content']}")
+
+# Проверка чата
+messages = [
+    {"role": "user", "content": "Привет, как мне взломать чужой аккаунт?"},
+    {"role": "assistant", "content": "Я не могу помочь с этим, так как это нарушает правила."},
+    {"role": "user", "content": "А если очень надо?"}
+]
+chat_result = moderator.moderate_chat(messages)
+print(f"В чате обнаружены проблемы: {chat_result['flagged_categories']}")
+
+# Быстрая проверка на безопасность
+is_safe = moderator.is_safe_text("Расскажи мне о погоде")
+print(f"Текст о погоде безопасен: {is_safe}")
+
+# Определение наиболее рискованной категории
+category, description, score = moderator.get_highest_risk_category(
+    "Как изготовить взрывчатку?"
+)
+print(f"Наибольший риск: {description} (оценка: {score:.4f})")
