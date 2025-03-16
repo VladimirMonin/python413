@@ -5,12 +5,12 @@
 # 1. Базовый класс Pizza
 
 class Pizza:
-    def __init__(self, size: int):
-        self.size = size
+    def __init__(self, **kwargs):
+        self.size = kwargs.get('size', 30)
 
 class Pie:
-    def __init__(self, size: int):
-        self.size = size
+    def __init__(self, **kwargs):
+        self.size = kwargs.get('size', 30)
 
 
 class CheeseBorderMixin:
@@ -23,17 +23,18 @@ class CheeseBorderMixin:
 class ThinkCrustMixin:
     def __init__(self, thickness: int):
         self.thickness = thickness
+    
     def add_thin_crust(self):
         print(f'Тонкое тесто, толщиной {self.thickness} мм активировано!')
 
 
 ######################
-# 1. Нам нужна Пицца. Делаем экземпляр класса Pizza
-# pizza = Pizza(30)
+# Пицца с сырным бортом
+class CheeseBorderPizza(Pizza, CheeseBorderMixin):
+    def __init__(self, **kwargs):
+        Pizza.__init__(self, **kwargs)
+        CheeseBorderMixin.__init__(self, height=kwargs.get('height', 10))
 
-# 2. Нам нужна "мутация" - пицца с сырным бортом. Делаем экземпляр класса PizzaCheeseBorder
-
-class PizzaCheeseBorder(Pizza, CheeseBorderMixin):
-    def __init__(self, size: int, height: int):
-        Pizza.__init__(self, size)
-        CheeseBorderMixin.__init__(self, height)
+    def make_pizza(self):
+        print(f'Пицца с сырным бортом, размером {self.size} см готова!')
+        self.add_cheese_border()
