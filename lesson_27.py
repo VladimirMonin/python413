@@ -2,14 +2,21 @@
 Тема: ООП Ч6. Наследование. Миксины. Практика Урок: 27
 """
 
-# 1. Базовый класс Pizza
-
-class Pizza:
+# Абстрактный класс выпечки
+class Bakery:
     def __init__(self, **kwargs):
         self.size = kwargs.pop('size', 30)
         super().__init__(**kwargs)
 
-class Pie:
+# 1. Базовый класс Pizza
+
+
+class Pizza(Bakery):
+    def __init__(self, **kwargs):
+        self.size = kwargs.pop('size', 30)
+        super().__init__(**kwargs)
+
+class Pie(Bakery):
     def __init__(self, **kwargs):
         self.size = kwargs.pop('size', 30)
         super().__init__(**kwargs)
@@ -18,6 +25,7 @@ class Pie:
 class CheeseBorderMixin:
     def __init__(self, **kwargs):
         self.height = kwargs.pop('height', 10)
+        super().__init__(**kwargs)
 
     def add_cheese_border(self):
         print(f'Сырный борт, высотой {self.height} мм активирован!')
@@ -44,3 +52,6 @@ pizza = CheeseBorderPizza(size=40, height=20)
 print(pizza.size)
 print(pizza.height)
 print(pizza.__dict__)
+print(CheeseBorderPizza.__mro__)
+print('=====================')
+(<class '__main__.CheeseBorderPizza'>, <class '__main__.Pizza'>, <class '__main__.Bakery'>, <class '__main__.CheeseBorderMixin'>, <class 'object'>)
