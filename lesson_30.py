@@ -67,6 +67,26 @@ class PaymentProcessor(ABC):
         pass
 
 
+class BlockchainAnalyzer(ABC):
+
+    @abstractmethod
+    def blockchain_analyse(self, order: Order, payment_data: dict) -> bool:
+        """
+        Анализирует блокчейн для заказа.
+        
+        Args:
+            order: Заказ для оплаты
+            payment_data: Словарь с данными для проведения платежа
+            
+        Returns:
+            bool: True если платёж успешно обработан, иначе False
+        """
+        pass
+
+
+
+
+
 class YandexPaymentProcessor(PaymentProcessor):
     """Процессор платежей для Яндекс.Кассы."""
     
@@ -140,6 +160,52 @@ class StripeProcessor(PaymentProcessor):
         # В реальном коде здесь был бы API-запрос к Stripe
         print(f"Платеж на сумму {order.get_total_amount()} USD через Stripe выполнен успешно!")
         return True
+
+
+class BitcoinProcessor(PaymentProcessor, BlockchainAnalyzer):
+    """Процессор платежей для Bitcoin."""
+    
+    def process_payment(self, order: Order, payment_data: dict) -> bool:
+        """
+        Реализует обработку платежа через Bitcoin.
+        
+        Args:
+            order: Заказ для оплаты
+            payment_data: Словарь с данными платежа, должен содержать
+                         'bitcoin_address' и 'amount'
+        """
+        logger.info(f"Обработка платежа через Bitcoin для заказа {order.order_id}")
+        
+        if "bitcoin_address" not in payment_data or "amount" not in payment_data:
+            logger.error("Отсутствуют необходимые данные для Bitcoin")
+            return False
+            
+        # В реальном коде здесь был бы API-запрос к блокчейну
+        print(f"Платеж на сумму {order.get_total_amount()} BTC через Bitcoin выполнен успешно!")
+        return True
+    
+    def blockchain_analyse(self, order: Order, payment_data: dict) -> bool:
+        """
+        Анализирует блокчейн для заказа.
+        
+        Args:
+            order: Заказ для оплаты
+            payment_data: Словарь с данными для проведения платежа
+            
+        Returns:
+            bool: True если платёж успешно обработан, иначе False
+        """
+        logger.info(f"Анализ блокчейна для заказа {order.order_id}")
+        
+        if "bitcoin_address" not in payment_data or "amount" not in payment_data:
+            logger.error("Отсутствуют необходимые данные для Bitcoin")
+            return False
+            
+        # В реальном коде здесь был бы API-запрос к блокчейну
+        print(f"Анализ блокчейна для заказа {order.order_id} выполнен успешно!")
+        return True
+
+
 
 
 # Класс для проведения платежей, который использует принцип открытости/закрытости
