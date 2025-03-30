@@ -112,7 +112,7 @@ class Joke(BaseModel):
     hashtags: list[str]
 
 PROMPT = """
-Ты шутник юморист. 
+Ты шутник юморист. Пи
 
 Придумай шутку на тему как роботы захватят человеков. и будут их эксплуатировать типа чтобы они тексты писали или или рефераты роботам-малышам в школу. 
 
@@ -133,15 +133,56 @@ PROMPT = """
 Автор: Mistral-Large-Lates АКА Шутник-юморист
 """
 
-# mistral = MistralStructuredTextGeneration(api_key=MISTRAL_API_KEY)
-# joke: BaseModel = mistral.generate_structured_text(prompt=PROMPT, temperature=0.5, max_tokens=8000, format=Joke)
 
-# print('Название:', joke.title)
-# print('Теги:', joke.hashtags)
-# print('Тема:', joke.theme)
-# print('Шутка:', joke.full_text)
+class AiFacade:
+    """
+    Фасад для работы с AI. 
+    """
+    def __init__(self, mistral_api_key: str):
+        self.mistral_api_key = mistral_api_key
+        self.ai_suppliers = {
+            "mistral_text": MistralTextGeneration,
+            "mistral_structured_text": MistralStructuredTextGeneration,
+        }
+        self.ai_client = None
 
-# Тест обычной генерации текста
-mistral_text = MistralTextGeneration(api_key=MISTRAL_API_KEY)
-text = mistral_text.generate_text(prompt=PROMPT, temperature=1, max_tokens=8000)
+    def interact(self):
+        """
+        Метод для взаимодействия с пользователем.
+        """
+        print("Выберите AI поставщика:")
+        for key in self.ai_suppliers:
+            print(key)
+        supplier = input()
+        if supplier not in self.ai_suppliers:
+            print("Такого поставщика нет")
+            return
+        self.ai_client = self.ai_suppliers[supplier](api_key=self.mistral_api_key)
+
+    def generate_text(self, prompt: str, temperature: float, max_tokens: int) -> str:
+        """
+        Метод для генерации текста.
+        """
+        # Проверим на то, что у клиента есть метод generate_text через проверку на родство с AbstractTextGeneration
+        if not isinstance(self.ai_client, AbstractTextGeneration):
+            raise Exception("Клиент не поддерживает генерацию текста")
+
+        result = self.ai_client.generate_text(prompt=prompt, temperature=temperature, max_tokens=max_tokens)
+        return result
+
+    def generate_structured_text(self, prompt: str, temperature: float, max_tokens: int, format: BaseModel) -> BaseModel:
+        """
+        Метод для генерации структурированного текста.
+        """
+        # Проверим на то, что у клиента есть метод generate_structured_text через проверку на родство с AbstractStructuredTextGeneration
+        if not isinstance(self.ai_client, AbstractStructuredTextGeneration):
+            raise Exception("Клиент не поддерживает генерацию структурированного текста")
+        result = self.ai_client.generate_structured_text(prompt=prompt, temperature=temperature, max_tokens=max_tokens, format=format)
+        return result
+
+
+# Тест фасада
+ai_facade = AiFacade(mistral_api_key=MISTRAL_API_KEY)
+ai_facade.interact()
+text = ai_facade.generate_text(prompt=PROMPT, temperature=1, max_tokens=8000)
 print(text)
