@@ -80,6 +80,31 @@ class MistralStructuredTextGeneration(AbstractStructuredTextGeneration):
         return chat_response.choices[0].message.parsed
 
 
+class MistralTextGeneration(AbstractTextGeneration):
+    """
+    Класс для генерации текста с использованием Mistral AI.
+    """
+    def __init__(self, api_key: str, model: str = "mistral-large-latest"):
+        self.client = Mistral(api_key=api_key)
+        self.model = model
+
+    def generate_text(self, prompt: str, temperature: float, max_tokens: int) -> str:
+        chat_response = self.client.chat.complete(
+        model = self.model,
+        messages = [
+        {
+            "role": "user",
+            "content": prompt
+        },
+        ],
+        temperature=temperature,
+        max_tokens=max_tokens
+        )
+        return chat_response.choices[0].message.content
+
+
+
+
 class Joke(BaseModel):
     title: str
     full_text: str
@@ -92,7 +117,7 @@ PROMPT = """
 Придумай шутку на тему как роботы захватят человеков. и будут их эксплуатировать типа чтобы они тексты писали или или рефераты роботам-малышам в школу. 
 
 Придумай что-то в этом духе. Пусть это будет смешно, грустно и в виде рассказа.
-Пусть там будет человек по имени Сергей
+Пусть там будет человек по имени Фёдор
 А так же робот будет "промптить человека" в формате
 
 Представь что ты робот-копирайтер с 10 летним стажем и великолепно умеешь писть рефераты для роботов-малышей.
@@ -105,14 +130,18 @@ PROMPT = """
 Поучительная история 10|10
 
 Подпиши в конце
-Автор: Mistral-Large-Lates Шутник-юморист
+Автор: Mistral-Large-Lates АКА Шутник-юморист
 """
 
-mistral = MistralStructuredTextGeneration(api_key=MISTRAL_API_KEY)
-joke: BaseModel = mistral.generate_structured_text(prompt=PROMPT, temperature=0.5, max_tokens=8000, format=Joke)
+# mistral = MistralStructuredTextGeneration(api_key=MISTRAL_API_KEY)
+# joke: BaseModel = mistral.generate_structured_text(prompt=PROMPT, temperature=0.5, max_tokens=8000, format=Joke)
 
-print('Название:', joke.title)
-print('Теги:', joke.hashtags)
-print('Тема:', joke.theme)
-print('Шутка:', joke.full_text)
+# print('Название:', joke.title)
+# print('Теги:', joke.hashtags)
+# print('Тема:', joke.theme)
+# print('Шутка:', joke.full_text)
 
+# Тест обычной генерации текста
+mistral_text = MistralTextGeneration(api_key=MISTRAL_API_KEY)
+text = mistral_text.generate_text(prompt=PROMPT, temperature=1, max_tokens=8000)
+print(text)
