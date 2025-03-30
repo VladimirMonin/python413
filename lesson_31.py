@@ -32,8 +32,53 @@ from dotenv import load_dotenv
 import os
 from mistralai import Mistral
 import json
+from abc import ABC, abstractmethod
 
 load_dotenv()
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+
+class AbstractTextGeneration(ABC):
+    """
+    Абстрактный класс для генерации текста.
+    """
+    @abstractmethod
+    def generate_text(self, prompt: str, temperature: float, max_tokens: int) -> str:
+        pass
+
+class AbstractStructuredTextGeneration(ABC):
+    """
+    Абстрактный класс для структурированной генерации текста.
+    """
+    
+    @abstractmethod
+    def generate_structured_text(self, prompt: str, temperature: float, max_tokens: int, format: BaseModel) -> BaseModel:
+        pass
+
+class MistralStructuredTextGeneration(AbstractStructuredTextGeneration):
+    """
+    Класс для структурированной генерации текста с использованием Mistral AI.
+    """
+    def __init__(self, api_key: str, model: str = "mistral-large-latest"):
+        self.client = Mistral(api_key=api_key)
+        self.model = model
+
+    def generate_structured_text(self, prompt: str, temperature: float, max_tokens: int, format: BaseModel) -> BaseModel:
+
+        chat_response = self.client.chat.parse(
+            model=self.model,
+            messages=[
+                {
+                    "role": "user", 
+                    "content": prompt
+                },
+            ],
+            response_format=format,
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+
+        return chat_response.choices[0].message.parsed
+
 
 class Joke(BaseModel):
     title: str
@@ -41,29 +86,33 @@ class Joke(BaseModel):
     theme: str
     hashtags: list[str]
 
+PROMPT = """
+Ты шутник юморист. 
 
-PROMPT = "Ты шутник юморист. Придумай шутку на тему как роботы захватят человеков."
+Придумай шутку на тему как роботы захватят человеков. и будут их эксплуатировать типа чтобы они тексты писали или или рефераты роботам-малышам в школу. 
 
-api_key = os.getenv("MISTRAL_API_KEY")
-model = "mistral-large-latest"
+Придумай что-то в этом духе. Пусть это будет смешно, грустно и в виде рассказа.
+Пусть там будет человек по имени Сергей
+А так же робот будет "промптить человека" в формате
 
-client = Mistral(api_key=api_key)
+Представь что ты робот-копирайтер с 10 летним стажем и великолепно умеешь писть рефераты для роботов-малышей.
 
-chat_response = client.chat.parse(
-    model=model,
-    messages=[
-        {
-            "role": "user", 
-            "content": PROMPT
-        },
-    ],
-    response_format=Joke,
-    max_tokens=8000,
-    temperature=0.6
-)
+Постарайся следовать критерям которые я задал:
 
-# print(chat_response.choices[0].message.content)
-print(chat_response.choices[0].message.parsed)
-print(type(chat_response.choices[0].message.parsed))
-# print(chat_response)
-# id='e967e2027d1143699971a8d4513017cf' object='chat.completion' model='mistral-large-latest' usage=UsageInfo(prompt_tokens=35, completion_tokens=112, total_tokens=147) created=1743330896 choices=[ParsedChatCompletionChoice(index=0, message=ParsedAssistantMessage(content='{\n  "full_text": "Почему роботы никогда не захватят людей? Потому что им постоянно придется перезагружаться из-за наших бесконечных обновлений!",\n  "hashtags": ["роботы", "юмор", "технологии"],\n  "theme": "технологии",\n  "title": "Роботы и обновления"\n}', tool_calls=None, prefix=False, role='assistant', parsed=Joke(title='Роботы и обновления', full_text='Почему роботы никогда не захватят людей? Потому что им постоянно придется перезагружаться из-за наших бесконечных обновлений!', theme='технологии', hashtags=['роботы', 'юмор', 'технологии'])), finish_reason='stop')]
+Юмор 10|10
+Грусть 5|10
+Филосовский смысл 11|10
+Поучительная история 10|10
+
+Подпиши в конце
+Автор: Mistral-Large-Lates Шутник-юморист
+"""
+
+mistral = MistralStructuredTextGeneration(api_key=MISTRAL_API_KEY)
+joke: BaseModel = mistral.generate_structured_text(prompt=PROMPT, temperature=0.5, max_tokens=8000, format=Joke)
+
+print('Название:', joke.title)
+print('Теги:', joke.hashtags)
+print('Тема:', joke.theme)
+print('Шутка:', joke.full_text)
+
