@@ -1,129 +1,92 @@
 """
 Lesson 34: Поведенческие паттерны проектирования
 - Состояние музыкальный плеер
+- Наблюдатель уведомления в блоге о новых постах
 """
 
 from abc import ABC, abstractmethod
+import email
 
-class AbstractState(ABC):
+class AbstractNotification(ABC):
     """
-    Абстрактный класс состояния.
+    Абстрактный класс уведомления.
     """
     
     @abstractmethod
-    def press_play(self):
+    def notify(self, message: str) -> None:
         """
-        Метод для обработки нажатия кнопки "Play".
-        """
-        pass
-    
-    @abstractmethod
-    def press_pause(self):
-        """
-        Метод для обработки нажатия кнопки "Pause".
-        """
-        pass
-    
-    @abstractmethod
-    def press_stop(self):
-        """
-        Метод для обработки нажатия кнопки "Stop".
+        Абстрактный метод для отправки уведомления.
         """
         pass
 
 
-class PlayingState(AbstractState):
+class EmailNotification(AbstractNotification):
     """
-    Класс состояния "Воспроизведение".
-    """
-    
-    def __init__(self, player):
-        self.player = player
-    
-    def press_play(self):
-        print("Музыка уже играет.")
-    
-    def press_pause(self):
-        print("Пауза.")
-        self.player.set_state(PausedState(self.player))
-    
-    def press_stop(self):
-        print("Стоп.")
-        self.player.set_state(StoppedState(self.player))
-
-
-class PausedState(AbstractState):
-    """
-    Класс состояния "Пауза".
+    Конкретная реализация уведомления по электронной почте.
     """
     
-    def __init__(self, player):
-        self.player = player
-    
-    def press_play(self):
-        print("Продолжение воспроизведения.")
-        self.player.set_state(PlayingState(self.player))
-    
-    def press_pause(self):
-        print("Музыка уже на паузе.")
-    
-    def press_stop(self):
-        print("Стоп.")
-        self.player.set_state(StoppedState(self.player))
+    def notify(self, message: str) -> None:
+        """
+        Отправляет уведомление по электронной почте.
+        """
+        print(f"Отправлено уведомление по электронной почте: {message}")
 
 
-class StoppedState(AbstractState):
+class TelegramNotification(AbstractNotification):
     """
-    Класс состояния "Стоп".
+    Конкретная реализация уведомления в Telegram.
     """
     
-    def __init__(self, player):
-        self.player = player
-    
-    def press_play(self):
-        print("Воспроизведение начато.")
-        self.player.set_state(PlayingState(self.player))
-    
-    def press_pause(self):
-        print("Музыка остановлена. Невозможно поставить на паузу.")
-    
-    def press_stop(self):
-        print("Музыка уже остановлена.")
+    def notify(self, message: str) -> None:
+        """
+        Отправляет уведомление в Telegram.
+        """
+        print(f"Отправлено уведомление в Telegram: {message}")
 
 
-
-class MusicPlayer:
+class Blog:
     """
-    Класс музыкального плеера.
+    Класс блога, который уведомляет подписчиков о новых постах.
     """
     
     def __init__(self):
-        self.state = StoppedState(self)
+        self.subscribers = []
     
-    def set_state(self, state: AbstractState):
+    def subscribe(self, subscriber: AbstractNotification) -> None:
         """
-        Установка нового состояния.
+        Подписывает пользователя на уведомления.
         """
-        self.state = state
+        self.subscribers.append(subscriber)
     
-    def press_play(self):
-        self.state.press_play()
+    def unsubscribe(self, subscriber: AbstractNotification) -> None:
+        """
+        Отписывает пользователя от уведомлений.
+        """
+        self.subscribers.remove(subscriber)
     
-    def press_pause(self):
-        self.state.press_pause()
-    
-    def press_stop(self):
-        self.state.press_stop()
+    def new_post(self, title: str) -> None:
+        """
+        Уведомляет подписчиков о новом посте.
+        """
+        message = f"Новый пост: {title}"
+        for subscriber in self.subscribers:
+            subscriber.notify(message)
 
 
-if __name__ == "__main__":
-    player = MusicPlayer()
-    
-    player.press_play()  # Воспроизведение начато.
-    player.press_pause()  # Пауза.
-    player.press_play()  # Продолжение воспроизведения.
-    player.press_stop()  # Стоп.
-    player.press_pause()  # Музыка уже на паузе.
-    player.press_stop()  # Музыка уже остановлена.
-    player.press_play()  # Воспроизведение начато.
-    player.press_stop()  # Стоп.
+# Пример использования паттерна Наблюдатель
+blog = Blog()
+email_notification = EmailNotification()
+telegram_notification = TelegramNotification()
+
+# Подписываемся на уведомления
+blog.subscribe(email_notification)
+blog.subscribe(telegram_notification)
+
+# Создаем новый пост
+blog.new_post("Паттерны проектирования в Python")
+
+# Отписываемся от уведомлений
+blog.unsubscribe(email_notification)
+
+# Создаем новый пост
+blog.new_post("Наблюдатель в Python")
