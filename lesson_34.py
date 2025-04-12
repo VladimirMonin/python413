@@ -2,91 +2,222 @@
 Lesson 34: Поведенческие паттерны проектирования
 - Состояние музыкальный плеер
 - Наблюдатель уведомления в блоге о новых постах
+- Цепочка обязанностей поэтапная генерация поста в блог
 """
 
 from abc import ABC, abstractmethod
-import email
+from dataclasses import dataclass, field
 
-class AbstractNotification(ABC):
+
+@dataclass
+class Post:
     """
-    Абстрактный класс уведомления.
+    Класс - пост в блоге.
+    """
+    title: str
+    content: str
+    history: list = field(default_factory=list)
+
+
+    def __post_init__(self):
+        """
+        Метод инициализации поста.
+        """
+        self.add_history(f"Пост '{id(self)}' создан.")
+
+    def add_history(self, state: str) -> None:
+        """
+        Добавляет состояние поста в историю.
+        """
+        self.history.append(state)
+
+
+class AbstractPostHandler(ABC):
+    """
+    Абстрактный класс обработчика поста.
     """
     
     @abstractmethod
-    def notify(self, message: str) -> None:
+    def handle(self, post: Post) -> None:
         """
-        Абстрактный метод для отправки уведомления.
+        Абстрактный метод для обработки поста.
         """
         pass
 
 
-class EmailNotification(AbstractNotification):
+class TitleHanderA(AbstractPostHandler):
     """
-    Конкретная реализация уведомления по электронной почте.
-    """
-    
-    def notify(self, message: str) -> None:
-        """
-        Отправляет уведомление по электронной почте.
-        """
-        print(f"Отправлено уведомление по электронной почте: {message}")
-
-
-class TelegramNotification(AbstractNotification):
-    """
-    Конкретная реализация уведомления в Telegram.
+    Обработчик заголовка поста.
+    Вариант А.
     """
     
-    def notify(self, message: str) -> None:
+    def handle(self, post: Post) -> None:
         """
-        Отправляет уведомление в Telegram.
+        Обрабатывает заголовок поста.
         """
-        print(f"Отправлено уведомление в Telegram: {message}")
+        result = f'Заголовок поста: {post.title}. Обработчик A.'
+        print(result)
+        post.add_history(result)
+        post.title = result
 
 
-class Blog:
+class TitleHanderB(AbstractPostHandler):
     """
-    Класс блога, который уведомляет подписчиков о новых постах.
+    Обработчик заголовка поста.
+    Вариант B.
+    """
+    
+    def handle(self, post: Post) -> None:
+        """
+        Обрабатывает заголовок поста.
+        """
+        result = f'Заголовок поста: {post.title}. Обработчик B.'
+        print(result)
+        post.add_history(result)
+        post.title = result
+
+
+class ContentHanderA(AbstractPostHandler):
+    """
+    Обработчик контента поста.
+    Вариант A.
+    """
+    
+    def handle(self, post: Post) -> None:
+        """
+        Обрабатывает контент поста.
+        """
+        result = f'Контент поста: {post.content}. Обработчик A.'
+        print(result)
+        post.add_history(result)
+        post.content = result
+
+
+class ContentHanderB(AbstractPostHandler):
+    """
+    Обработчик контента поста.
+    Вариант B.
+    """
+    
+    def handle(self, post: Post) -> None:
+        """
+        Обрабатывает контент поста.
+        """
+        result = f'Контент поста: {post.content}. Обработчик B.'
+        print(result)
+        post.add_history(result)
+        post.content = result
+
+
+class BlogProcessor:
+    """
+    Простой процессор для блоговых постов.
+    Позволяет выбрать обработчики для заголовка и контента.
     """
     
     def __init__(self):
-        self.subscribers = []
+        """
+        Инициализация процессора с наборами обработчиков.
+        """
+        # Доступные обработчики заголовков
+        self.title_handlers = {
+            "A": TitleHanderA(),
+            "B": TitleHanderB()
+        }
+        
+        # Доступные обработчики контента
+        self.content_handlers = {
+            "A": ContentHanderA(),
+            "B": ContentHanderB()
+        }
     
-    def subscribe(self, subscriber: AbstractNotification) -> None:
+    def process_post_interactive(self, post: Post) -> Post:
         """
-        Подписывает пользователя на уведомления.
+        Интерактивно обрабатывает пост, спрашивая пользователя
+        о предпочтительных обработчиках.
+        
+        Args:
+            post: Пост для обработки
+            
+        Returns:
+            Обработанный пост
         """
-        self.subscribers.append(subscriber)
+        # Выводим доступные обработчики заголовков
+        print("Доступные обработчики заголовков:")
+        for key in self.title_handlers.keys():
+            print(f"- {key}")
+        
+        # Спрашиваем пользователя о выборе
+        title_choice = input("Выберите обработчик заголовка (или нажмите Enter для пропуска): ")
+        
+        # Выводим доступные обработчики контента
+        print("Доступные обработчики контента:")
+        for key in self.content_handlers.keys():
+            print(f"- {key}")
+        
+        # Спрашиваем пользователя о выборе
+        content_choice = input("Выберите обработчик контента (или нажмите Enter для пропуска): ")
+        
+        # Применяем выбранные обработчики
+        if title_choice and title_choice in self.title_handlers:
+            post.add_history(f"Применяется обработчик заголовка: {title_choice}")
+            self.title_handlers[title_choice].handle(post)
+        
+        if content_choice and content_choice in self.content_handlers:
+            post.add_history(f"Применяется обработчик контента: {content_choice}")
+            self.content_handlers[content_choice].handle(post)
+        
+        post.add_history("Обработка завершена")
+        return post
     
-    def unsubscribe(self, subscriber: AbstractNotification) -> None:
+    def process_post(self, post: Post, title_handler_key: str = None, content_handler_key: str = None) -> Post:
         """
-        Отписывает пользователя от уведомлений.
+        Обрабатывает пост с указанными обработчиками.
+        Удобно для автоматического использования без интерактива.
+        
+        Args:
+            post: Пост для обработки
+            title_handler_key: Ключ обработчика заголовка
+            content_handler_key: Ключ обработчика контента
+            
+        Returns:
+            Обработанный пост
         """
-        self.subscribers.remove(subscriber)
+        if title_handler_key and title_handler_key in self.title_handlers:
+            post.add_history(f"Применяется обработчик заголовка: {title_handler_key}")
+            self.title_handlers[title_handler_key].handle(post)
+        
+        if content_handler_key and content_handler_key in self.content_handlers:
+            post.add_history(f"Применяется обработчик контента: {content_handler_key}")
+            self.content_handlers[content_handler_key].handle(post)
+        
+        post.add_history("Обработка завершена")
+        return post
     
-    def new_post(self, title: str) -> None:
-        """
-        Уведомляет подписчиков о новом посте.
-        """
-        message = f"Новый пост: {title}"
-        for subscriber in self.subscribers:
-            subscriber.notify(message)
 
+# Пример использования
+def main():
+    # Создаём процессор
+    processor = BlogProcessor()
+    
+    # Создаём пост
+    post = Post(title="Паттерны в Python", content="Простые решения часто лучше сложных!")
+    
+    # Вариант 1: Интерактивное использование (пользователь выбирает обработчики)
+    processed_post = processor.process_post_interactive(post)
+    
+    # Выводим результат
+    print("\nРезультат:")
+    print(f"Заголовок: {processed_post.title}")
+    print(f"Контент: {processed_post.content}")
+    print("\nИстория обработки:")
+    for entry in processed_post.history:
+        print(f"- {entry}")
 
-# Пример использования паттерна Наблюдатель
-blog = Blog()
-email_notification = EmailNotification()
-telegram_notification = TelegramNotification()
+    # Вариант 2: Программное использование (для автоматизации)
+    # another_post = Post(title="Весна 2025", content="Python 3.13 уже вышел!")
+    # auto_processed = processor.process_post(another_post, "B", "A")
+    # ... и так далее
 
-# Подписываемся на уведомления
-blog.subscribe(email_notification)
-blog.subscribe(telegram_notification)
-
-# Создаем новый пост
-blog.new_post("Паттерны проектирования в Python")
-
-# Отписываемся от уведомлений
-blog.unsubscribe(email_notification)
-
-# Создаем новый пост
-blog.new_post("Наблюдатель в Python")
+if __name__ == "__main__":
+    main()
