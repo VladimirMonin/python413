@@ -28,8 +28,17 @@ CREATE TABLE
         age INTEGER DEFAULT 0,
         group_id INTEGER DEFAULT NULL,
         FOREIGN KEY (group_id) REFERENCES Groups (id) ON DELETE SET DEFAULT ON UPDATE CASCADE
+
     );
 
+-- Индекс для group_id
+CREATE INDEX IF NOT EXISTS idx_group_id ON Students (group_id);
+
+-- Индекс для фамилии
+CREATE INDEX IF NOT EXISTS idx_last_name ON Students (last_name);
+
+-- Составной индекс для ФИО
+CREATE INDEX IF NOT EXISTS idx_full_name ON Students (first_name, last_name, middle_name);
 
 -- Таблица студ. билетов (ОДИН К ОДНОМУ!!!! - гарантирует  student_id INTEGER UNIQUE, )
 -- CREATE TABLE IF NOT EXISTS StudentsCards (
@@ -47,8 +56,11 @@ CREATE TABLE IF NOT EXISTS StudentsCards (
     notes TEXT DEFAULT NULL,
     created_date DATE DEFAULT CURRENT_TIMESTAMP,
     issued_date DATE DEFAULT Null,
-    FOREIGN KEY (student_id) REFERENCES Students (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES Students (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- Индекс для внешнего ключа
+CREATE INDEX IF NOT EXISTS idx_student_id ON StudentsCards (student_id);
 
 -- 3. Добавление групп в БД
 INSERT INTO
@@ -82,6 +94,12 @@ CREATE TABLE IF NOT EXISTS Teachers (
     phone TEXT
 );
 
+-- Индексы преподов по телефону, фамилии, ФИО
+CREATE INDEX IF NOT EXISTS idx_teacher_phone ON Teachers (phone);
+CREATE INDEX IF NOT EXISTS idx_teacher_last_name ON Teachers (last_name);
+CREATE INDEX IF NOT EXISTS idx_teacher_full_name ON Teachers (first_name, last_name, middle_name);
+
+
 -- Создаем преподавателей
 INSERT INTO Teachers (first_name, last_name, phone)
 VALUES
@@ -110,6 +128,10 @@ CREATE TABLE IF NOT EXISTS TeacherGroups (
     FOREIGN KEY (group_id) REFERENCES Groups (id) ON DELETE SET DEFAULT ON UPDATE CASCADE
     PRIMARY KEY (teacher_id, group_id) -- Автоматическая проверка уникальности пары
 );
+
+-- Два отдельных индекса для teacher_id и group_id
+CREATE INDEX IF NOT EXISTS idx_teacher_id ON TeacherGroups (teacher_id);
+CREATE INDEX IF NOT EXISTS idx_group_id ON TeacherGroups (group_id);
 
 -- Назначение преподавателей на группы
 -- Вариант где мы просто укажем ID Назначим препод 1 в группу 3
