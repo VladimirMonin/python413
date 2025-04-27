@@ -4,3 +4,4 @@ __pycache__*
 settings.py
 .env
 *.png
+data/
