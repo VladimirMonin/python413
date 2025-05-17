@@ -206,3 +206,61 @@ JOIN Groups AS g ON s.group_id = g.id;
 SELECT s.first_name, s.last_name, g.group_name
 FROM Students AS s
 LEFT JOIN Groups AS g ON s.group_id = g.id;
+
+
+#TODO - 1. Названия всех групп где препод Микросервисный
+#TODO -2. К первому запросу добавить GROUP_CONCAT чтобы группы выводились в одной строке
+#TODO - 3. К запросу 2 добавить выборку по еще одному преподу - Питонья чтобы получить 2 строки в выводе
+#TODO - 4. Перепишите запрос 3 так, чтобы получить не группы, а всех студентов через запятую для этих преподавателей
+
+
+-- 1.
+
+SELECT t.last_name, g.group_name
+FROM Teachers AS t
+JOIN TeacherGroups AS tg ON t.id = tg.teacher_id
+JOIN Groups AS g ON tg.group_id = g.id
+WHERE t.last_name = 'Микросервисный';
+
+-- 2.
+
+SELECT t.last_name, g.group_name, GROUP_CONCAT(g.group_name) AS groups
+FROM Teachers AS t
+JOIN TeacherGroups AS tg ON t.id = tg.teacher_id
+JOIN Groups AS g ON tg.group_id = g.id
+WHERE t.last_name = 'Микросервисный'
+GROUP BY t.last_name
+
+-- 3.
+SELECT t.last_name, GROUP_CONCAT(g.group_name) AS groups
+FROM Teachers AS t
+JOIN TeacherGroups AS tg ON t.id = tg.teacher_id
+JOIN Groups AS g ON tg.group_id = g.id
+WHERE t.last_name = 'Микросервисный' OR t.first_name  = 'Питонья'
+GROUP BY t.last_name
+
+
+-- 4.
+SELECT t.last_name, GROUP_CONCAT(s.first_name || ' ' || s.last_name) AS students
+FROM Teachers AS t
+JOIN TeacherGroups AS tg ON t.id = tg.teacher_id
+JOIN Groups AS g ON tg.group_id = g.id
+JOIN Students AS s ON s.group_id = g.id
+WHERE t.last_name = 'Микросервисный' OR t.first_name  = 'Питонья'
+GROUP BY t.last_name;
+
+
+-- Синтаксис транзакций
+
+-- Для начала транзацкии мы используем BEGIN, BEGIN TRANSACTION
+BEGIN TRANSACTION;
+
+DROP TABLE IF EXISTS Students;
+
+SELECT * FROM Students;
+
+-- Откат
+ROLLBACK;
+
+-- Коммит
+COMMIT;
