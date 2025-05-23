@@ -39,7 +39,7 @@ CREATE TABLE
         lesson_date DATE DEFAULT (DATE ('now')),
         lesson_time TIME DEFAULT (TIME('now')),
         academic_hours INTEGER DEFAULT 2,
-        telegram_record_link TEXT DEFAULT NULL,
+        telegram_record_link TEXT DATEFAULT NULL,
         lesson_theme TEXT NOT NULL,
         lesson_notes TEXT DEFAULT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -100,8 +100,7 @@ CREATE TABLE
         student_id INTEGER NOT NULL,
         homework_id INTEGER NOT NULL,
         homework_text TEXT NOT NULL,
-        file_path TEXT,
-        status TEXT DEFAULT 'отправлено' CHECK (
+        file_path TEXT,        status TEXT DEFAULT 'отправлено' CHECK (
             status IN (
                 'отправлено',
                 'на проверке',
