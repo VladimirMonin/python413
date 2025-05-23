@@ -39,7 +39,7 @@ CREATE TABLE
         lesson_date DATE DEFAULT (DATE ('now')),
         lesson_time TIME DEFAULT (TIME('now')),
         academic_hours INTEGER DEFAULT 2,
-        telegram_record_link TEXT DATEFAULT NULL,
+        telegram_record_link TEXT DEFAULT NULL,
         lesson_theme TEXT NOT NULL,
         lesson_notes TEXT DEFAULT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +108,7 @@ CREATE TABLE
                 'принято',
                 'проверено',
                 'на доработку',
-                'обратная связь выдана',
+                'обратная связь выдана'
             )
         ),
         mark INTEGER,
