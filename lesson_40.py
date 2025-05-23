@@ -15,6 +15,8 @@ cursor = connection.cursor()
 
 # Инструметы курсора:
 # cursor.execute("SQL-запрос") - выполнение SQL-запроса
+# cursor.executemany("SQL-запрос", данные) - выполнение SQL-запроса с несколькими параметрами
+# cursor.executescript("SQL-скрипт") - выполнение SQL-скрипта из файла
 # cursor.fetchall() - получение всех строк результата запроса
 # cursor.fetchone() - получение одной строки результата запроса
 # cursor.lastrowid - получение id последней вставленной строки
