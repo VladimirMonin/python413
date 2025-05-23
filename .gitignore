@@ -5,3 +5,4 @@ settings.py
 .env
 *.png
 data/
+hw/hw_34/hw_34.db
